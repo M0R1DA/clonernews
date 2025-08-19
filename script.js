@@ -18,6 +18,7 @@ const endpointMap = {
 };
 
 async function fetchItem(id) {
+  console.log(id);
   
   try {
     const res = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`);
@@ -30,9 +31,12 @@ async function fetchItem(id) {
 }
 
 async function fetchIds(type) {
+  console.log(`Fetching IDs for type: ${type}`);
   
   try {
     const res = await fetch(endpointMap[type]);
+    console.log(`Response for ${type}:`, res);
+    
     if (!res.ok) throw new Error(`Failed to fetch IDs for ${type}`);
     const data = await res.json();
     if (type === "poll") {
@@ -217,14 +221,15 @@ function throttle(func, limit) {
   };
 }
 
-window.addEventListener(
-  "scroll",
-  throttle(() => {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
-      loadNextBatch();
-    }
-  }, 1000)
-);
+const throttledScrollCheck = throttle(() => {
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
+    loadNextBatch();
+  }
+}, 1000);
+
+setInterval(() => {
+  throttledScrollCheck();
+}, 1000);
 
 storiesBtn.addEventListener("click", () => loadContent("story"));
 jobsBtn.addEventListener("click", () => loadContent("job"));
